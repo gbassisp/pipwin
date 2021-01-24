@@ -18,6 +18,7 @@ from pySmartDL import SmartDL
 from requests.adapters import HTTPAdapter
 from urllib3.poolmanager import PoolManager
 from urllib3.util.ssl_ import create_urllib3_context
+from urllib3.util import parse_url
 import logging
 
 try:
@@ -74,7 +75,7 @@ class DESAdapter(HTTPAdapter):
         )
 
 
-def build_cache():
+def build_cache(proxy=None):
     """
     Get current data from the website http://www.lfd.uci.edu/~gohlke/pythonlibs/
 
@@ -83,7 +84,7 @@ def build_cache():
     Dictionary containing package details
     """
     data = {}
-    response = requests.request("GET", MAIN_URL, headers=HEADER)
+    response = requests.request("GET", MAIN_URL, headers=HEADER, proxies=proxy)
 
     soup = BeautifulSoup(response.text, features="html.parser")
 
@@ -208,7 +209,7 @@ class PipwinCache(object):
             self.data = json.loads(cache_dump)
         else:
             print("Building cache. Hang on . . .")
-            self.data = build_cache()
+            self.data = build_cache(proxy=self.proxy)
 
             with open(self.cache_file, "w") as fp:
                 fp.write(
@@ -287,7 +288,7 @@ class PipwinCache(object):
             print("File " + wheel_file + " already exists")
             return wheel_file
 
-        obj = SmartDL(url, dest)
+        obj = SmartDL(url, dest, request_args=self.proxy)
         obj.start()
         return wheel_file
 
@@ -309,8 +310,9 @@ class PipwinCache(object):
         subprocess.check_call([executable, "-m", "pip", "uninstall", requirement.name])
 
     def set_proxy(self, proxy):
-        pass
-
+        url = parse_url(proxy)
+        self.proxy = {'{}'.format(url.scheme): proxy} if proxy else None
+        
 
 def refresh():
     """

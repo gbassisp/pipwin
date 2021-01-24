@@ -187,7 +187,7 @@ class PipwinCache(object):
     Pipwin cache class
     """
 
-    def __init__(self, refresh=False):
+    def __init__(self, refresh=False, proxy=None):
         """
         Search if cache file is there in HOME.
         If not, build one.
@@ -200,6 +200,7 @@ class PipwinCache(object):
 
         home_dir = expanduser("~")
         self.cache_file = join(home_dir, ".pipwin")
+        self.set_proxy(proxy)
 
         if isfile(self.cache_file) and not refresh:
             with open(self.cache_file) as fp:
@@ -306,6 +307,9 @@ class PipwinCache(object):
         Uninstall a package
         """
         subprocess.check_call([executable, "-m", "pip", "uninstall", requirement.name])
+
+    def set_proxy(self, proxy):
+        pass
 
 
 def refresh():

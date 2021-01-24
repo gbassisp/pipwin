@@ -3,7 +3,7 @@
 Gohlke
 
 Usage:
-  pipwin install (<package> | [-r=<file> | --file=<file>])
+  pipwin install (<package> | [-r=<file> | --file=<file>]) [--proxy=<proxy>]
   pipwin uninstall <package>
   pipwin download (<package> | [-r=<file> | --file=<file>]) [-d=<dest> | --dest=<dest>]
   pipwin search <package>
@@ -17,6 +17,7 @@ Options:
   -v --version             Show version.
   -r=<file> --file=<file>  File with list of package names.
   -d=<dest> --dest=<dest>  Download packages into <dest>.
+  --proxy=<proxy>          Uses the specified proxy to request packages
 """
 
 from docopt import docopt
@@ -76,7 +77,8 @@ def main():
         pipwin.refresh()
         sys.exit(0)
 
-    cache = pipwin.PipwinCache()
+    proxy = args["--proxy"] if args["--proxy"] else None
+    cache = pipwin.PipwinCache(proxy=proxy)
 
     # Handle list
     if args["list"]:
